@@ -1,6 +1,7 @@
 import { FastifyRequest, FastifyReply } from 'fastify'
 import { z } from 'zod'
-import { registerUserCase } from '@/use-cases/register'
+import { RegisterUserCase } from '@/use-cases/register'
+import { PrismaUsersRepository } from '@/repositories/prisma/prisma-users-repository'
 
 export async function register(request: FastifyRequest, reply: FastifyReply) {
   const registerBodySchema = z.object({
@@ -12,8 +13,12 @@ export async function register(request: FastifyRequest, reply: FastifyReply) {
   const { name, email, password } = registerBodySchema.parse(request.body)
 
   try {
+    // Caso troque de ferramenta para a inserção do banco é so trocar o repositorio
+    const usersRepository = new PrismaUsersRepository()
+    const registerUserCase = new RegisterUserCase(usersRepository)
+
     // separar o registro do usuario na rota http
-    await registerUserCase({
+    await registerUserCase.execute({
       name,
       email,
       password,
