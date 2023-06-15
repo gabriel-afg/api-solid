@@ -1,6 +1,7 @@
 // import { PrismaUsersRepository } from '@/repositories/prisma-users-repository'
 import { UsersRepository } from '@/repositories/users-repository'
 import { hash } from 'bcryptjs'
+import { UserAlreadyExistsError } from './errors/user-already-exists'
 
 interface RegisterUserCaseRequest {
   name: string
@@ -19,7 +20,7 @@ export class RegisterUserCase {
     const userWithSameEmail = await this.usersRepository.findByEmail(email)
 
     if (userWithSameEmail) {
-      throw new Error('Email already exist')
+      throw new UserAlreadyExistsError()
     }
 
     // Instanciar a classe que faz a criaçao da tupla no banco
