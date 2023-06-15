@@ -1,7 +1,7 @@
-// import { PrismaUsersRepository } from '@/repositories/prisma-users-repository'
 import { UsersRepository } from '@/repositories/users-repository'
 import { hash } from 'bcryptjs'
 import { UserAlreadyExistsError } from './errors/user-already-exists'
+import type { User } from '@prisma/client'
 
 interface RegisterUserCaseRequest {
   name: string
@@ -9,10 +9,18 @@ interface RegisterUserCaseRequest {
   password: string
 }
 
+interface RegisterUserCaseResponse {
+  user: User
+}
+
 export class RegisterUserCase {
   constructor(private usersRepository: UsersRepository) {}
 
-  async execute({ name, email, password }: RegisterUserCaseRequest) {
+  async execute({
+    name,
+    email,
+    password,
+  }: RegisterUserCaseRequest): Promise<RegisterUserCaseResponse> {
     const password_hash = await hash(password, 6)
     // Senha hash não será revertida, porém na autenticação do usuário será efetuada a
     // comparação da senha digitada com a senha hash que será gerada
@@ -23,13 +31,12 @@ export class RegisterUserCase {
       throw new UserAlreadyExistsError()
     }
 
-    // Instanciar a classe que faz a criaçao da tupla no banco
-    // const prismaUserRepository = new PrismaUsersRepository()
-
-    await this.usersRepository.create({
+    const user = await this.usersRepository.create({
       name,
       email,
       password_hash,
     })
+
+    return { user }
   }
 }
