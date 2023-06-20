@@ -29,7 +29,7 @@ describe('Authenticate Use Case', () => {
   })
 
   test('Should be able to authenticate with wrong email', async () => {
-    await expect(() =>
+    await await expect(() =>
       sut.execute({
         email: 'John.Doe@example.com',
         password: '123456',
